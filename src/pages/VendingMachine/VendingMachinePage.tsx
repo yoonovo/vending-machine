@@ -147,7 +147,7 @@ const VendingMachinePage = () => {
                     handleTypeOfPayment(v);
                   }}
                 >
-                  Click
+                  SELECT
                 </li>
               ) : (
                 <li key={`machine_btn_${v.name}_${v.id}`} className={`item`}>

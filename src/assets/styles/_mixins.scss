@@ -5,6 +5,6 @@
 }
 
 @mixin commonBorder($width) {
-  border: $width solid black;
+  border: $width solid #695e51;
   border-radius: 10px;
 }
