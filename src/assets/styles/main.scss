@@ -1,6 +1,7 @@
 @forward "mixins";
 
 @use "mixins";
+
 .button-box {
   @include mixins.flexSort(center, center);
   gap: 10px;
@@ -12,4 +13,9 @@
   width: 100px;
   font-weight: bold;
   cursor: pointer;
+
+  &.highlight {
+    background-color: #000;
+    color: #fff;
+  }
 }

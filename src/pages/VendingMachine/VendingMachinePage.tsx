@@ -1,7 +1,7 @@
 import { useState } from "react";
 import "./VendingMachinePage.scss";
-import PaymentCash from "@/components/PaymentCash/PaymentCash";
-import PaymentCard from "@/components/PaymentCard/PaymentCard";
+import PaymentCash from "@/components/features/PaymentCash/PaymentCash";
+import PaymentCard from "@/components/features/PaymentCard/PaymentCard";
 import {
   initCashReserve,
   initProducts,

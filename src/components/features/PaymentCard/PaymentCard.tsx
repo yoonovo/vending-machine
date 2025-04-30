@@ -1,5 +1,6 @@
 import { useState } from "react";
 import "./PaymentCard.scss";
+import ButtonBox from "@/components/common/ButtonBox";
 
 type PaymentCardProp = {
   currentStep: number;
@@ -30,26 +31,23 @@ const PaymentCard = ({
   return (
     <div className="payment-card">
       <h2>{statusMsg}</h2>
-      {currentStep === 0 ? (
+      {currentStep === 0 && (
         <>
           <p>카드를 넣어주세요.</p>
-          <div className="button-box">
-            <button className="button" onClick={handleInputCard}>
-              카드 넣기
-            </button>
-            <button className="button" onClick={onCancel}>
-              취소
-            </button>
-          </div>
+          <ButtonBox
+            id="payment_card_1"
+            buttons={[
+              { title: "카드 넣기", onClick: handleInputCard },
+              { title: "취소", onClick: onCancel },
+            ]}
+          />
         </>
-      ) : (
-        <div className="button-box">
-          {currentStep !== 2 && (
-            <button className="button" onClick={onCancel}>
-              카드 빼기
-            </button>
-          )}
-        </div>
+      )}
+      {currentStep === 1 && (
+        <ButtonBox
+          id="payment_card_2"
+          buttons={[{ title: "카드 빼기", onClick: onCancel }]}
+        />
       )}
     </div>
   );

@@ -3,6 +3,7 @@ import { cashReserveType, insertedCashType } from "@/types/VendingMachineType";
 import "./PaymentCash.scss";
 import { initInsertedCash } from "@/constants";
 import { useState } from "react";
+import ButtonBox from "@/components/common/ButtonBox";
 
 type PaymentCashProp = {
   currentStep: number;
@@ -129,33 +130,28 @@ const PaymentCash = ({
               </li>
             ))}
           </ul>
-          <div className="button-box">
-            <button className="button" onClick={handleNextStep}>
-              완료
-            </button>
-            <button className="button" onClick={handleReturnCash}>
-              반환
-            </button>
-            <button className="button" onClick={onCancel}>
-              취소
-            </button>
-          </div>
+          <ButtonBox
+            id="payment_cash_1"
+            buttons={[
+              { title: "완료", onClick: handleNextStep },
+              { title: "반환", onClick: handleReturnCash },
+              { title: "취소", onClick: onCancel },
+            ]}
+          />
         </>
       ) : (
-        <div className="button-box">
-          <button className="button" onClick={handleCalculateCash}>
-            거스름돈 반환
-          </button>
-          {showInquiryBtn && (
-            <button
-              className="button"
-              style={{ background: "black", color: "white" }}
-              onClick={handleInquiry}
-            >
-              문의하기
-            </button>
-          )}
-        </div>
+        <ButtonBox
+          id="payment_cash_2"
+          buttons={[
+            { title: "거스름돈 반환", onClick: handleCalculateCash },
+            {
+              title: "문의하기",
+              onClick: handleInquiry,
+              isVisible: showInquiryBtn,
+              isHighlight: true,
+            },
+          ]}
+        />
       )}
     </div>
   );
