@@ -1,7 +1,7 @@
 import { useState } from "react";
 import "./VendingMachinePage.scss";
-import PaymentCash from "../../components/PaymentCash/PaymentCash";
-import PaymentCard from "../../components/PaymentCard/PaymentCard";
+import PaymentCash from "@/components/PaymentCash/PaymentCash";
+import PaymentCard from "@/components/PaymentCard/PaymentCard";
 import {
   initCashReserve,
   initProducts,
@@ -9,8 +9,8 @@ import {
   initInsertedCash,
   initPurchasedProducts,
   payment,
-} from "../../constants";
-import { productsType } from "../../types/VendingMachineType";
+} from "@/constants";
+import { productsType } from "@/types/VendingMachineType";
 
 const VendingMachinePage = () => {
   const [selectedPayment, setSelectedPayment] = useState<string>("");

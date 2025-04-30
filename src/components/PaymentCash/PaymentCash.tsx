@@ -1,10 +1,7 @@
-import { insertComma } from "../../utils/number";
-import {
-  cashReserveType,
-  insertedCashType,
-} from "../../types/VendingMachineType";
+import { insertComma } from "@/utils/number";
+import { cashReserveType, insertedCashType } from "@/types/VendingMachineType";
 import "./PaymentCash.scss";
-import { initInsertedCash } from "../../constants";
+import { initInsertedCash } from "@/constants";
 import { useState } from "react";
 
 type PaymentCashProp = {
