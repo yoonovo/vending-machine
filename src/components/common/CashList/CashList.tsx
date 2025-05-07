@@ -5,7 +5,7 @@ type CashList = {
   list: Record<string, any>;
 };
 
-export const CashList = ({ title, list }: CashList) => {
+const CashList = ({ title, list }: CashList) => {
   return (
     <div className="cash-reserve">
       <h3>{title}</h3>
@@ -20,3 +20,5 @@ export const CashList = ({ title, list }: CashList) => {
     </div>
   );
 };
+
+export default CashList;

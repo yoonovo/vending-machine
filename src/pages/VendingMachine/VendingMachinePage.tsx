@@ -1,8 +1,6 @@
 import { useState } from "react";
 import "./VendingMachinePage.scss";
-import PaymentCash from "@/components/features/PaymentCash/PaymentCash";
-import PaymentCard from "@/components/features/PaymentCard/PaymentCard";
-import { CashList } from "@/components/common/CashList/CashList";
+import { PaymentCash, PaymentCard, Dispenser, CashList } from "@/components";
 import {
   initCashReserve,
   initProducts,
@@ -170,29 +168,11 @@ const VendingMachinePage = () => {
           />
         )}
         {/* 결제한 제품 출력 부분 */}
-        <div className="dispenser">
-          <ul className="purchased-products">
-            {productsInfo.map(({ name, color }) =>
-              purchasedProducts[name] > 0 ? (
-                <li
-                  key={`purchased_products_${name}`}
-                  style={{ background: color }}
-                >
-                  {name} {purchasedProducts[name]}개
-                </li>
-              ) : (
-                ""
-              )
-            )}
-          </ul>
-
-          <button
-            className="button"
-            onClick={() => setPurchasedProducts(initPurchasedProducts)}
-          >
-            꺼내기
-          </button>
-        </div>
+        <Dispenser
+          products={productsInfo}
+          purchasedProducts={purchasedProducts}
+          setPurchasedProducts={setPurchasedProducts}
+        />
       </div>
       {/* 현금 보유 현황 */}
       <div className="flex-col">
