@@ -1,60 +1,55 @@
 import { insertComma } from "@/utils/number";
-import { cashReserveType, insertedCashType } from "@/types/VendingMachineType";
+import { reserveCashType } from "@/types/VendingMachineType";
 import "./PaymentCash.scss";
-import { initInsertedCash } from "@/constants/cash";
 import { useState } from "react";
 import ButtonBox from "@/components/common/ButtonBox";
 import { useStep } from "@/stores/useStep";
+import { useCash } from "@/stores/useCash";
+import { initInsertedCash } from "@/constants/cash";
 
 type PaymentCashProp = {
-  insertedCash: insertedCashType;
-  cashReserve: cashReserveType;
-  setInsertedCash: (v: insertedCashType) => void;
-  setCashReserve: React.Dispatch<React.SetStateAction<cashReserveType>>; // 동일함 (v: (v: cashReserveType) => void) => void;
-  onCancel: () => void;
+  onReset: () => void;
 };
 
-const PaymentCash = ({
-  insertedCash,
-  cashReserve,
-  setInsertedCash,
-  setCashReserve,
-  onCancel,
-}: PaymentCashProp) => {
+const PaymentCash = ({ onReset }: PaymentCashProp) => {
   const { step, setStatus } = useStep();
+  const {
+    reserveCash,
+    insertedCash,
+    totalInsertedCash,
+    setReserveCash,
+    setInsertedCash,
+    resetInsertedCash,
+  } = useCash();
+
   const [showInquiryBtn, setShowInquiryBtn] = useState<boolean>(false);
 
-  // 현금 투입시 동작
+  // 현금 투입 시 동작
   const handleInsertedCash = (value: number) => {
-    const { total: tot, count: cnt } = insertedCash;
-
-    if (tot + value > 50000) {
+    if (totalInsertedCash + value > 50000) {
       alert("5만원 이상은 투입이 불가능 합니다.");
       return;
     }
 
-    const count = Object.assign({}, cnt, { [value]: cnt[value] + 1 });
-    const total = Object.keys(count).reduce((t, v) => {
-      const key = Number(v);
-      t += key * count[key];
-      return t;
-    }, 0);
-
-    setInsertedCash({ total, count });
+    setInsertedCash({
+      ...insertedCash,
+      ...{
+        [value]: insertedCash[value] + 1,
+      },
+    });
   };
 
-  const handleNextStep = () => {
-    const { total: tot, count: cnt } = insertedCash;
-
-    if (tot === 0) {
+  // 현금 투입 완료 시 동작
+  const handleComplete = () => {
+    if (totalInsertedCash === 0) {
       alert("투입된 금액이 없습니다.");
       return;
     }
 
     // 자판기에 투입된 현금 추가
-    setCashReserve((pre) =>
-      Object.keys(pre).reduce((t: cashReserveType, key) => {
-        t[key] = pre[key] + cnt[key];
+    setReserveCash(
+      Object.keys(reserveCash).reduce((t: reserveCashType, key) => {
+        t[key] = reserveCash[key] + insertedCash[key];
         return t;
       }, {})
     );
@@ -62,29 +57,24 @@ const PaymentCash = ({
     setStatus(1); // 제품선택 단계로 변경
   };
 
-  // 투입한 현금 반환
-  const handleReturnCash = () => {
-    setInsertedCash(initInsertedCash);
-  };
-
   // 거스름돈 반환 버튼 클릭 시
   const handleCalculateCash = () => {
-    const returnCash = { ...initInsertedCash.count };
-    let total = insertedCash.total;
-    let reserveCash = { ...cashReserve };
+    const returnCash = { ...initInsertedCash };
+    let total = totalInsertedCash;
+    let cash = { ...reserveCash };
 
     // 큰 금액부터 거스름돈 계산
-    Object.keys(reserveCash)
+    Object.keys(cash)
       .map(Number)
       .sort((a, b) => b - a)
       .forEach((value) => {
-        while (total >= value && reserveCash[value] > 0) {
+        while (total >= value && cash[value] > 0) {
           returnCash[value]++;
           total -= value;
 
-          reserveCash = {
-            ...reserveCash,
-            [value]: reserveCash[value] - 1,
+          cash = {
+            ...cash,
+            [value]: cash[value] - 1,
           };
         }
       });
@@ -95,18 +85,17 @@ const PaymentCash = ({
       return;
     }
 
-    setCashReserve(reserveCash);
-    setInsertedCash(initInsertedCash);
-    onCancel();
+    setReserveCash(cash);
+    onReset();
   };
 
   // 문의하기 버튼 클릭 시, 자판기 보유 현금 개수가 각각 +10 증가
   const handleInquiry = () => {
     alert("자판기 내 현금이 보충되었습니다. 감사합니다.");
     setShowInquiryBtn(false);
-    setCashReserve((pre) =>
-      Object.keys(pre).reduce((t: cashReserveType, key) => {
-        t[key] = pre[key] + 10;
+    setReserveCash(
+      Object.keys(reserveCash).reduce((t: reserveCashType, key) => {
+        t[key] = reserveCash[key] + 10;
         return t;
       }, {})
     );
@@ -114,26 +103,26 @@ const PaymentCash = ({
 
   return (
     <div className="payment-cash">
-      <h2>총 금액 : {insertComma(insertedCash.total)}원</h2>
+      <h2>총 금액 : {insertComma(totalInsertedCash)}원</h2>
       {step === 0 ? (
         <>
           <p>현금을 투입해주세요.</p>
           <ul className="cash-type-list">
-            {Object.keys(cashReserve).map((v) => (
+            {Object.keys(reserveCash).map((v) => (
               <li
                 key={`cash_${v}`}
                 onClick={() => handleInsertedCash(Number(v))}
               >
-                {insertComma(v)}원 ({insertedCash.count[v]})
+                {insertComma(v)}원 ({insertedCash[v]})
               </li>
             ))}
           </ul>
           <ButtonBox
             id="payment_cash_1"
             buttons={[
-              { title: "완료", onClick: handleNextStep },
-              { title: "반환", onClick: handleReturnCash },
-              { title: "취소", onClick: onCancel },
+              { title: "완료", onClick: handleComplete },
+              { title: "반환", onClick: resetInsertedCash },
+              { title: "취소", onClick: onReset },
             ]}
           />
         </>

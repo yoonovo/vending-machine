@@ -4,10 +4,10 @@ import ButtonBox from "@/components/common/ButtonBox";
 import { useStep } from "@/stores/useStep";
 
 type PaymentCardProp = {
-  onCancel: () => void;
+  onReset: () => void;
 };
 
-const PaymentCard = ({ onCancel }: PaymentCardProp) => {
+const PaymentCard = ({ onReset }: PaymentCardProp) => {
   const { step, setStatus } = useStep();
   const [statusMsg, setStatusMsg] = useState<string>("대기중...");
 
@@ -34,7 +34,7 @@ const PaymentCard = ({ onCancel }: PaymentCardProp) => {
             id="payment_card_1"
             buttons={[
               { title: "카드 넣기", onClick: handleInputCard },
-              { title: "취소", onClick: onCancel },
+              { title: "취소", onClick: onReset },
             ]}
           />
         </>
@@ -42,7 +42,7 @@ const PaymentCard = ({ onCancel }: PaymentCardProp) => {
       {step === 1 && (
         <ButtonBox
           id="payment_card_2"
-          buttons={[{ title: "카드 빼기", onClick: onCancel }]}
+          buttons={[{ title: "카드 빼기", onClick: onReset }]}
         />
       )}
     </div>

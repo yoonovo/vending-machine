@@ -1,23 +1,28 @@
 import { useState } from "react";
 import "./VendingMachinePage.scss";
 import { PaymentCash, PaymentCard, Dispenser, CashList } from "@/components";
-import { initCashReserve, initInsertedCash } from "@/constants/cash";
 import { productsType } from "@/types/VendingMachineType";
 import { useStep } from "@/stores/useStep";
 import { useProducts } from "@/stores/useProducts";
+import { useCash } from "@/stores/useCash";
 
 const VendingMachinePage = () => {
   const { step, stepMsg, setStatus } = useStep();
   const { products, completePurchase } = useProducts();
+  const {
+    reserveCash,
+    insertedCash,
+    totalInsertedCash,
+    setTotalInsertCash,
+    resetInsertedCash,
+  } = useCash();
 
   const [selectedPayment, setSelectedPayment] = useState<string>(""); // 선택된 결제수단
-  const [insertedCash, setInsertedCash] = useState(initInsertedCash); // 투입된 현금 정보
-  const [cashReserve, setCashReserve] = useState(initCashReserve); // 자판기 현금 정보
 
   // 결제수단 선택 단계로 리셋
-  const onCancel = () => {
+  const onReset = () => {
     setSelectedPayment("");
-    setInsertedCash(initInsertedCash);
+    resetInsertedCash();
     setStatus(0);
   };
 
@@ -37,9 +42,10 @@ const VendingMachinePage = () => {
 
   // 카드로 결제 시 동작
   const handlePaymentCard = (product: productsType) => {
-    const isSuccess = Math.random() < 0.9; // 10% 확률로 오류발생
+    // 10% 확률로 카드 인식 오류 발생
+    const isSuccess = Math.random() < 0.9;
     if (!isSuccess) {
-      alert("카드 결제 오류 입니다. 다시 시도해주세요.");
+      alert("카드 오류 입니다. 다시 시도해주세요.");
       return;
     }
 
@@ -48,17 +54,14 @@ const VendingMachinePage = () => {
 
   // 현금으로 결제 시 동작
   const handlePaymentCash = (product: productsType) => {
-    const { total, count } = insertedCash;
-
     // 선택한 제품의 가격보다 잔액이 부족한 경우
-    if (total < product.price) {
+    if (totalInsertedCash < product.price) {
       alert("잔액이 부족합니다.");
       return;
     }
 
     // 총 금액 차감
-    const callback = () =>
-      setInsertedCash({ total: total - product.price, count });
+    const callback = () => setTotalInsertCash(product.price);
 
     handleCompletePayment(product, callback);
   };
@@ -139,24 +142,16 @@ const VendingMachinePage = () => {
           </div>
         )}
         {/* 결제수단 - 카드 */}
-        {selectedPayment === "card" && <PaymentCard onCancel={onCancel} />}
+        {selectedPayment === "card" && <PaymentCard onReset={onReset} />}
         {/* 결제수단 - 현금 */}
-        {selectedPayment === "cash" && (
-          <PaymentCash
-            insertedCash={insertedCash}
-            cashReserve={cashReserve}
-            setCashReserve={setCashReserve}
-            setInsertedCash={setInsertedCash}
-            onCancel={onCancel}
-          />
-        )}
+        {selectedPayment === "cash" && <PaymentCash onReset={onReset} />}
         {/* 결제한 제품 출력 부분 */}
         <Dispenser />
       </div>
       {/* 현금 보유 현황 */}
       <div className="flex-col">
-        <CashList title="자판기 현금 현황" list={cashReserve} />
-        <CashList title="투입된 현금 현황" list={insertedCash.count} />
+        <CashList title="자판기 현금 현황" list={reserveCash} />
+        <CashList title="투입된 현금 현황" list={insertedCash} />
       </div>
     </div>
   );

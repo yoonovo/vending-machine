@@ -1,7 +1,7 @@
-import { cashReserveType, insertedCashType } from "@/types/VendingMachineType";
+import { reserveCashType } from "@/types/VendingMachineType";
 
 // 자판기 현금 정보
-export const initCashReserve: cashReserveType = {
+export const initReserveCash: reserveCashType = {
   100: 5,
   500: 5,
   1000: 5,
@@ -10,10 +10,16 @@ export const initCashReserve: cashReserveType = {
 };
 
 // 결제 수단이 현금 일 경우, 투입된 금액 정보
-export const initInsertedCash: insertedCashType = {
-  total: 0,
-  count: Object.keys(initCashReserve).reduce((t: cashReserveType, v) => {
-    t[v] = 0;
-    return t;
-  }, {}),
-};
+// export const initInsertedCash: insertedCashType = {
+//   total: 0,
+//   count: Object.keys(initReserveCash).reduce((t: reserveCashType, v) => {
+//     t[v] = 0;
+//     return t;
+//   }, {}),
+// };
+export const initInsertedCash: reserveCashType = Object.keys(
+  initReserveCash
+).reduce((t: reserveCashType, v) => {
+  t[v] = 0;
+  return t;
+}, {});
