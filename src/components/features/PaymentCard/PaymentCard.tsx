@@ -39,10 +39,12 @@ const PaymentCard = ({ onReset }: PaymentCardProp) => {
           />
         </>
       )}
-      {step === 1 && (
+      {step >= 1 && (
         <ButtonBox
           id="payment_card_2"
-          buttons={[{ title: "카드 빼기", onClick: onReset }]}
+          buttons={[
+            { title: "카드 빼기", onClick: onReset, isDisabled: step === 2 },
+          ]}
         />
       )}
     </div>
