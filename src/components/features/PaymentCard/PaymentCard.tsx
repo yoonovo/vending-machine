@@ -1,18 +1,14 @@
 import { useState } from "react";
 import "./PaymentCard.scss";
 import ButtonBox from "@/components/common/ButtonBox";
+import { useStep } from "@/stores/useStep";
 
 type PaymentCardProp = {
-  currentStep: number;
-  setProcessStep: (v: number) => void;
   onCancel: () => void;
 };
 
-const PaymentCard = ({
-  currentStep,
-  setProcessStep,
-  onCancel,
-}: PaymentCardProp) => {
+const PaymentCard = ({ onCancel }: PaymentCardProp) => {
+  const { step, setStatus } = useStep();
   const [statusMsg, setStatusMsg] = useState<string>("대기중...");
 
   // 카드 넣기 버튼 클릭 후 동작
@@ -25,13 +21,13 @@ const PaymentCard = ({
     }
 
     setStatusMsg("카드 확인 완료");
-    setProcessStep(1); // 제품선택 단계로 변경
+    setStatus(1); // 제품선택 단계로 변경
   };
 
   return (
     <div className="payment-card">
       <h2>{statusMsg}</h2>
-      {currentStep === 0 && (
+      {step === 0 && (
         <>
           <p>카드를 넣어주세요.</p>
           <ButtonBox
@@ -43,7 +39,7 @@ const PaymentCard = ({
           />
         </>
       )}
-      {currentStep === 1 && (
+      {step === 1 && (
         <ButtonBox
           id="payment_card_2"
           buttons={[{ title: "카드 빼기", onClick: onCancel }]}

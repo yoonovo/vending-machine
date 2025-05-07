@@ -11,7 +11,7 @@ export const payment: { id: string; name: string }[] = [
 ];
 
 // 결제 단계별 메시지
-// [결제수단 선택 -> 제품선택 -> 결제 -> 결제완료
+// [결제수단 선택 -> 제품선택 -> 결제 -> 결제완료]
 export const msgByStep: string[] = [
   "결제수단을 선택해주세요.",
   "제품을 선택해주세요.",

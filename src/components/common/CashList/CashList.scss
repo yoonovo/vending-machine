@@ -1,0 +1,19 @@
+.cash-reserve {
+  @include commonBorder(5px);
+  padding: 20px;
+  background: lightgrey;
+  margin-left: 10px;
+
+  .cash-reserve-list {
+    @include flexSort(space-between, start);
+    flex-direction: column;
+    gap: 10px;
+    list-style: none;
+    padding: 10px 0;
+
+    li {
+      @include flexSort(space-between, start);
+      width: 100%;
+    }
+  }
+}

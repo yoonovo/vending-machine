@@ -2,6 +2,7 @@
 
 @use "mixins";
 
+// Button Styles
 .button-box {
   @include mixins.flexSort(center, center);
   gap: 10px;
@@ -18,4 +19,11 @@
     background-color: #000;
     color: #fff;
   }
+}
+
+// Flex Box Styles
+.flex-col {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }

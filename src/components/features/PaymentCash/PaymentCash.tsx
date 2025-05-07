@@ -4,26 +4,24 @@ import "./PaymentCash.scss";
 import { initInsertedCash } from "@/constants";
 import { useState } from "react";
 import ButtonBox from "@/components/common/ButtonBox";
+import { useStep } from "@/stores/useStep";
 
 type PaymentCashProp = {
-  currentStep: number;
   insertedCash: insertedCashType;
   cashReserve: cashReserveType;
   setInsertedCash: (v: insertedCashType) => void;
-  setProcessStep: (v: number) => void;
   setCashReserve: React.Dispatch<React.SetStateAction<cashReserveType>>; // 동일함 (v: (v: cashReserveType) => void) => void;
   onCancel: () => void;
 };
 
 const PaymentCash = ({
-  currentStep,
   insertedCash,
   cashReserve,
   setInsertedCash,
-  setProcessStep,
   setCashReserve,
   onCancel,
 }: PaymentCashProp) => {
+  const { step, setStatus } = useStep();
   const [showInquiryBtn, setShowInquiryBtn] = useState<boolean>(false);
 
   // 현금 투입시 동작
@@ -61,7 +59,7 @@ const PaymentCash = ({
       }, {})
     );
 
-    setProcessStep(1); // 제품선택 단계로 변경
+    setStatus(1); // 제품선택 단계로 변경
   };
 
   // 투입한 현금 반환
@@ -117,7 +115,7 @@ const PaymentCash = ({
   return (
     <div className="payment-cash">
       <h2>총 금액 : {insertComma(insertedCash.total)}원</h2>
-      {currentStep === 0 ? (
+      {step === 0 ? (
         <>
           <p>현금을 투입해주세요.</p>
           <ul className="cash-type-list">

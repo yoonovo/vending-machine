@@ -2,24 +2,25 @@ import { useState } from "react";
 import "./VendingMachinePage.scss";
 import PaymentCash from "@/components/features/PaymentCash/PaymentCash";
 import PaymentCard from "@/components/features/PaymentCard/PaymentCard";
+import { CashList } from "@/components/common/CashList/CashList";
 import {
   initCashReserve,
   initProducts,
-  msgByStep,
   initInsertedCash,
   initPurchasedProducts,
   payment,
 } from "@/constants";
 import { productsType } from "@/types/VendingMachineType";
+import { useStep } from "@/stores/useStep";
 
 const VendingMachinePage = () => {
-  const [selectedPayment, setSelectedPayment] = useState<string>("");
-  const [currentStep, setCurrentStep] = useState<number>(0);
-  const [noticeMsg, setNoticeMsg] = useState<string>(msgByStep[currentStep]);
+  const { step, stepMsg, setStatus } = useStep();
+  const [selectedPayment, setSelectedPayment] = useState<string>(""); // 선택된 결제수단
 
-  const [insertedCash, setInsertedCash] = useState(initInsertedCash);
-  const [cashReserve, setCashReserve] = useState(initCashReserve);
-  const [productsInfo, setProductsInfo] = useState(initProducts);
+  const [insertedCash, setInsertedCash] = useState(initInsertedCash); // 투입된 현금 정보
+  const [cashReserve, setCashReserve] = useState(initCashReserve); // 자판기 현금 정보
+
+  const [productsInfo, setProductsInfo] = useState(initProducts); // 제품 목록 (가격, 수량 등)
   const [purchasedProducts, setPurchasedProducts] = useState(
     initPurchasedProducts
   );
@@ -28,13 +29,7 @@ const VendingMachinePage = () => {
   const onCancel = () => {
     setSelectedPayment("");
     setInsertedCash(initInsertedCash);
-    setProcessStep(0);
-  };
-
-  // 프로세스 단계 및 메시지 변경
-  const setProcessStep = (number: number) => {
-    setCurrentStep(number);
-    setNoticeMsg(msgByStep[number]);
+    setStatus(0);
   };
 
   // 결제 완료 후 재고 수량 및 결제된 상품 목록 변경
@@ -42,25 +37,25 @@ const VendingMachinePage = () => {
     product: productsType,
     callback?: () => void
   ) => {
-    setProcessStep(2);
+    setStatus(2);
+    // 실제 자판기와 같이 딜레이를 주기 위한 코드
     setTimeout(() => {
-      setProcessStep(3);
+      setStatus(3);
       callback?.();
 
       // 재고 수량 변경
-      setProductsInfo(
-        productsInfo.map((v) =>
-          v.id === product.id
-            ? Object.assign({}, v, { quantity: v.quantity - 1 })
-            : v
+      setProductsInfo((pre) =>
+        pre.map((v) =>
+          v.id === product.id ? { ...v, ...{ quantity: v.quantity - 1 } } : v
         )
       );
       // 결제된 상품 목록 변경
-      setPurchasedProducts(
-        Object.assign({}, purchasedProducts, {
-          [product.name]: purchasedProducts[product.name] + 1,
-        })
-      );
+      setPurchasedProducts((pre) => ({
+        ...pre,
+        ...{
+          [product.name]: pre[product.name] + 1,
+        },
+      }));
     }, 1000);
   };
 
@@ -79,20 +74,9 @@ const VendingMachinePage = () => {
   const handlePaymentCash = (product: productsType) => {
     const { total, count } = insertedCash;
 
-    // 가장 싼 제품의 가격보다 잔액이 부족한 경우
-    const minPrice = productsInfo
-      .map(({ price }) => price)
-      .sort((a, b) => a - b)[0];
-    if (total < minPrice) {
-      alert("잔액이 부족합니다.");
-      setNoticeMsg("잔액이 부족합니다.");
-      return;
-    }
-
     // 선택한 제품의 가격보다 잔액이 부족한 경우
     if (total < product.price) {
       alert("잔액이 부족합니다.");
-      setProcessStep(1);
       return;
     }
 
@@ -139,7 +123,7 @@ const VendingMachinePage = () => {
           {/* 제품 선택 버튼 */}
           <ul className="products-button-list">
             {productsInfo.map((v) =>
-              v.quantity > 0 && (currentStep === 1 || currentStep === 3) ? (
+              v.quantity > 0 && (step === 1 || step === 3) ? (
                 <li
                   key={`machine_btn_${v.name}_${v.id}`}
                   className="active"
@@ -158,7 +142,7 @@ const VendingMachinePage = () => {
           </ul>
         </div>
         {/* 안내 메시지 */}
-        <div className="notice">{noticeMsg}</div>
+        <div className="notice">{stepMsg}</div>
         {/* 결제수단 선택 버튼 */}
         {selectedPayment === "" && (
           <div className="payment-type">
@@ -174,22 +158,14 @@ const VendingMachinePage = () => {
           </div>
         )}
         {/* 결제수단 - 카드 */}
-        {selectedPayment === "card" && (
-          <PaymentCard
-            currentStep={currentStep}
-            setProcessStep={setProcessStep}
-            onCancel={onCancel}
-          />
-        )}
+        {selectedPayment === "card" && <PaymentCard onCancel={onCancel} />}
         {/* 결제수단 - 현금 */}
         {selectedPayment === "cash" && (
           <PaymentCash
             insertedCash={insertedCash}
             cashReserve={cashReserve}
-            currentStep={currentStep}
             setCashReserve={setCashReserve}
             setInsertedCash={setInsertedCash}
-            setProcessStep={setProcessStep}
             onCancel={onCancel}
           />
         )}
@@ -209,6 +185,7 @@ const VendingMachinePage = () => {
               )
             )}
           </ul>
+
           <button
             className="button"
             onClick={() => setPurchasedProducts(initPurchasedProducts)}
@@ -218,16 +195,9 @@ const VendingMachinePage = () => {
         </div>
       </div>
       {/* 현금 보유 현황 */}
-      <div className="cash-reserve">
-        <h3>현금 보유 현황</h3>
-        <ul className="cash-reserve-list">
-          {Object.keys(cashReserve).map((key) => (
-            <li key={`rest_cash_${key}`}>
-              <p>{key}원</p>
-              <p>{cashReserve[key]}개</p>
-            </li>
-          ))}
-        </ul>
+      <div className="flex-col">
+        <CashList title="자판기 현금 현황" list={cashReserve} />
+        <CashList title="투입된 현금 현황" list={insertedCash.count} />
       </div>
     </div>
   );
