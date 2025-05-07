@@ -1,27 +1,18 @@
 import { useState } from "react";
 import "./VendingMachinePage.scss";
 import { PaymentCash, PaymentCard, Dispenser, CashList } from "@/components";
-import {
-  initCashReserve,
-  initProducts,
-  initInsertedCash,
-  initPurchasedProducts,
-  payment,
-} from "@/constants";
+import { initCashReserve, initInsertedCash } from "@/constants/cash";
 import { productsType } from "@/types/VendingMachineType";
 import { useStep } from "@/stores/useStep";
+import { useProducts } from "@/stores/useProducts";
 
 const VendingMachinePage = () => {
   const { step, stepMsg, setStatus } = useStep();
-  const [selectedPayment, setSelectedPayment] = useState<string>(""); // 선택된 결제수단
+  const { products, completePurchase } = useProducts();
 
+  const [selectedPayment, setSelectedPayment] = useState<string>(""); // 선택된 결제수단
   const [insertedCash, setInsertedCash] = useState(initInsertedCash); // 투입된 현금 정보
   const [cashReserve, setCashReserve] = useState(initCashReserve); // 자판기 현금 정보
-
-  const [productsInfo, setProductsInfo] = useState(initProducts); // 제품 목록 (가격, 수량 등)
-  const [purchasedProducts, setPurchasedProducts] = useState(
-    initPurchasedProducts
-  );
 
   // 결제수단 선택 단계로 리셋
   const onCancel = () => {
@@ -40,20 +31,7 @@ const VendingMachinePage = () => {
     setTimeout(() => {
       setStatus(3);
       callback?.();
-
-      // 재고 수량 변경
-      setProductsInfo((pre) =>
-        pre.map((v) =>
-          v.id === product.id ? { ...v, ...{ quantity: v.quantity - 1 } } : v
-        )
-      );
-      // 결제된 상품 목록 변경
-      setPurchasedProducts((pre) => ({
-        ...pre,
-        ...{
-          [product.name]: pre[product.name] + 1,
-        },
-      }));
+      completePurchase(product);
     }, 1000);
   };
 
@@ -103,7 +81,7 @@ const VendingMachinePage = () => {
         <div className="machine-products">
           {/* 제품 샘플 */}
           <ul className="products-sample">
-            {productsInfo.map((v) => (
+            {products.map((v) => (
               <li
                 key={`products_${v.name}_${v.id}`}
                 style={{
@@ -120,7 +98,7 @@ const VendingMachinePage = () => {
           </ul>
           {/* 제품 선택 버튼 */}
           <ul className="products-button-list">
-            {productsInfo.map((v) =>
+            {products.map((v) =>
               v.quantity > 0 && (step === 1 || step === 3) ? (
                 <li
                   key={`machine_btn_${v.name}_${v.id}`}
@@ -144,15 +122,20 @@ const VendingMachinePage = () => {
         {/* 결제수단 선택 버튼 */}
         {selectedPayment === "" && (
           <div className="payment-type">
-            {payment.map((v) => (
-              <div
-                key={`payment_${v.id}`}
-                className="item"
-                onClick={() => setSelectedPayment(v.id)}
-              >
-                {v.name}
-              </div>
-            ))}
+            <div
+              key="payment_card"
+              className="item"
+              onClick={() => setSelectedPayment("card")}
+            >
+              카드
+            </div>
+            <div
+              key="payment_cash"
+              className="item"
+              onClick={() => setSelectedPayment("cash")}
+            >
+              현금
+            </div>
           </div>
         )}
         {/* 결제수단 - 카드 */}
@@ -168,11 +151,7 @@ const VendingMachinePage = () => {
           />
         )}
         {/* 결제한 제품 출력 부분 */}
-        <Dispenser
-          products={productsInfo}
-          purchasedProducts={purchasedProducts}
-          setPurchasedProducts={setPurchasedProducts}
-        />
+        <Dispenser />
       </div>
       {/* 현금 보유 현황 */}
       <div className="flex-col">

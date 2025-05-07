@@ -1,7 +1,7 @@
 import { insertComma } from "@/utils/number";
 import { cashReserveType, insertedCashType } from "@/types/VendingMachineType";
 import "./PaymentCash.scss";
-import { initInsertedCash } from "@/constants";
+import { initInsertedCash } from "@/constants/cash";
 import { useState } from "react";
 import ButtonBox from "@/components/common/ButtonBox";
 import { useStep } from "@/stores/useStep";

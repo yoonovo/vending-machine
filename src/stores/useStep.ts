@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { msgByStep } from "@/constants";
+import { msgByStep } from "@/constants/step";
 
 type StepStoreType = {
   step: number;

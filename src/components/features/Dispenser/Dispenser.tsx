@@ -1,18 +1,9 @@
-import { initPurchasedProducts } from "@/constants";
 import "./Dispenser.scss";
-import { productsType } from "@/types/VendingMachineType";
+import { useProducts } from "@/stores/useProducts";
 
-type DispenserPropsType = {
-  products: productsType[];
-  purchasedProducts: Record<string, number>;
-  setPurchasedProducts: (v: Record<string, number>) => void;
-};
+const Dispenser = () => {
+  const { products, purchasedProducts, resetPurchasedProducts } = useProducts();
 
-const Dispenser = ({
-  products,
-  purchasedProducts,
-  setPurchasedProducts,
-}: DispenserPropsType) => {
   return (
     <div className="dispenser">
       <ul className="purchased-products">
@@ -29,11 +20,7 @@ const Dispenser = ({
           )
         )}
       </ul>
-
-      <button
-        className="button"
-        onClick={() => setPurchasedProducts(initPurchasedProducts)}
-      >
+      <button className="button" onClick={resetPurchasedProducts}>
         꺼내기
       </button>
     </div>
